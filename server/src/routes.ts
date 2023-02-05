@@ -83,9 +83,6 @@ export async function appRoutes(app: FastifyInstance) {
       return dayHabit.habit_id
     }) ?? []
 
-    console.log('possibleHabits:', possibleHabits)
-    console.log('completedHabits:', completedHabits)
-
     return {
       possibleHabits,
       completedHabits
@@ -95,8 +92,6 @@ export async function appRoutes(app: FastifyInstance) {
   app.patch('/habits/:id/toggle', {
     onRequest: [authenticate]
   }, async (request) => {
-
-    console.log('/habits/:id/toggle:')
 
     const toggleHabitParams = z.object({
       id: z.string().uuid(),
@@ -231,5 +226,64 @@ export async function appRoutes(app: FastifyInstance) {
     })
 
     return { token }
+  })
+
+  app.get('/user/:id', async (request) => {
+    const toggleHabitParams = z.object({
+      id: z.string(),
+    })
+
+    const { id } = toggleHabitParams.parse(request.params)
+
+    const findUserById = await prisma.user.findUnique({
+      where: {
+        id
+      }
+    })
+
+    if(!findUserById) {
+      throw('Usuário não encontrado!')
+    }
+
+    const findHabits = await prisma.habit.findMany({
+      where: {
+        user_id: id
+      }
+    })
+
+    const user = {
+      id: findUserById.id,
+      name: findUserById.name,
+      email: findUserById.email,
+      avatarUrl: findUserById.avatarUrl,
+      countHabits: findHabits.length
+    }
+
+    const summary = await prisma.$queryRaw`
+      SELECT 
+        D.id,
+        D.date,
+        (
+          SELECT 
+            cast(count(*) as float)
+          FROM day_habits DH
+          WHERE DH.day_id = D.id
+          AND DH.user_id = ${id}
+        ) as completed,
+        (
+          SELECT
+            cast(count(*) as float)
+          FROM habit_week_days HWD
+          JOIN habits H
+            ON H.id = HWD.habit_id
+          WHERE
+            HWD.week_day = cast(strftime('%w', D.date/1000.0, 'unixepoch') as int)
+            AND H.created_at <= D.date
+            AND H.user_id = ${id}
+        ) as amount
+      FROM days D
+    `
+
+    return {summary, user}
   })
 }

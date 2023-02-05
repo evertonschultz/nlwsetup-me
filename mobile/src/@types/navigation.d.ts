@@ -6,6 +6,7 @@ export declare global {
       habit: {
         date: string;
       }
+      user: undefined;
     }
   }
 }

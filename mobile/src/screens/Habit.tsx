@@ -37,16 +37,15 @@ export function Habit() {
   const dayAndMonth = parsedDate.format('DD/MM');
 
   const habitsProgress = dayInfo?.possibleHabits.length
-  ? generateProgressPercentage(dayInfo.possibleHabits.length, completedHabits.length)
-  : 0;
+    ? generateProgressPercentage(dayInfo.possibleHabits.length, completedHabits.length)
+    : 0;
 
   async function fetchHabits() {
     try {
       setLoading(true)
 
-      const response = await api.get('/day', { params: { date }})
+      const response = await api.get('/day', { params: { date } })
       setDayInfo(response.data)
-      console.log('response.data:', response.data)
       setCompletedHabits(response.data.completedHabits)
     } catch (error) {
       console.log(error)
@@ -67,7 +66,6 @@ export function Habit() {
     } catch (error) {
       console.log(error)
     }
-    
   }
 
   useEffect(() => {
@@ -101,20 +99,20 @@ export function Habit() {
         })}>
           {
             dayInfo?.possibleHabits.length ?
-            dayInfo.possibleHabits.map(habit => (
-              <Checkbox
-                key={habit.id}
-                title={habit.title}
-                checked={completedHabits.includes(habit.id)}
-                onPress={() => handleToggleHabit(habit.id)}
-                disabled={isDateInPast}
-              />
-            )) : isDateInPast ? (
-              <Text className="text-white text-center">
-                Não há registro de hábitos para esse dia.
-              </Text>
-            ) : <HabitsEmpty />
-           }
+              dayInfo.possibleHabits.map(habit => (
+                <Checkbox
+                  key={habit.id}
+                  title={habit.title}
+                  checked={completedHabits.includes(habit.id)}
+                  onPress={() => handleToggleHabit(habit.id)}
+                  disabled={isDateInPast}
+                />
+              )) : isDateInPast ? (
+                <Text className="text-white text-center">
+                  Não há registro de hábitos para esse dia.
+                </Text>
+              ) : <HabitsEmpty />
+          }
         </View>
         {
           isDateInPast && dayInfo?.possibleHabits.length ? (

@@ -33,10 +33,10 @@ export function Header() {
         </TouchableOpacity>
         <TouchableOpacity>
           <Feather
-            name="log-out"
+            name="user"
             color={colors.violet[500]}
             size={20}
-            onPress={signOut}
+            onPress={() => navigate('user')}
           />
         </TouchableOpacity>
       </View>

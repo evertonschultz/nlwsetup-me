@@ -10,6 +10,7 @@ import { Alert } from "react-native";
 WebBrowser.maybeCompleteAuthSession();
 
 interface UserProps {
+  sub: string;
   name: string;
   avatarUrl: string;
 }
